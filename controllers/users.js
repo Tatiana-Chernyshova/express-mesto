@@ -1,73 +1,66 @@
-const fs = require('fs').promises;
-const User = require('../models/user');
+const User = require('../model/users');
 
 const getUsers = (req, res) => {
-  // User.find({ name, about })
-  User.find({})
-  // fs.readFile('./data.json')
-    .then(users => {
-      res.status(200).send({data: JSON.parse(users)})
-  })
+  return User.find({})
+    .then(users =>
+      res.status(200).send({data: users}))
+    .catch(err => {
+      if (err.statusCode === 404) {
+        res.status(404).send({ message: err.message });
+      } else {
+        res.status(500).send({ message: "Что-то пошло не так" });
+      }
+    });
 }
+
 const getUser = (req, res) => {
-  fs.readFile('./data.json')
-  .then(users => {
-    const user = JSON.parse(users).find(el => el.id === req.params.userId)
-    if (!user) return res.status(404).send({message: 'takogo nema'})
-    res.status(200).send(user)
-    // res.status(200).send(req.params.userId)
-  })}
+  return User.findById({_id: req.params.userId})
+    .then(user => {
+      res.status(200).send({data: user})})
+    .catch(err => {
+      if (err.statusCode === 404) {
+        res.status(404).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        res.status(400).send({ message: "Запрашиваемый пользователь не найден" });
+      } else {
+        res.status(500).send({ message: "Что-то пошло не так" });
+      }
+    });
+}
+
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body; // получим из объекта запроса имя и описание пользователя
-  User.create({ name, about, avatar })
-    // вернём записанные в базу данные
+  return User.create({ name, about, avatar })
     .then(user => res.send({ data: user }))
-    // данные не записались, вернём ошибку
+    .catch(err => {
+      if (err.statusCode === 404) {
+        res.status(404).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        // res.status(400).send({ message: "Неверные данные" });
+      } else {
+        res.status(500).send({ message: "Что-то пошло не так" });
+      }
+    });
+};
+
+const updateUser = (req, res) => {
+  const { name, about } = req.body;
+  return User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
+    .then(user => res.send({ data: user }))
     .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
+};
 
-  // console.log(req.body)
-  // fs.readFile('./data.json')
-  // fs.readFile('./data.json')
-  // .then(users => {
-    // const users2 = JSON.parse(users);
-    // users2.push(req.body)
-    // fs.writeFile('./data.json', JSON.stringify(users2))
-    // if (!user) return res.status(404).send({message: 'takogo nema'})
-    // res.status(200).send(user)
-}; 
-
-PATCH /users/me — обновляет профиль
-const updateUser (req, res) => {
-  // обновим имя найденного по _id пользователя
-  User.findByIdAndUpdate(
-    req.params.id,
-    { name: 'Виктор Гусев' },
-    // Передадим объект опций:
-    {
-        new: true, // обработчик then получит на вход обновлённую запись
-        runValidators: true, // данные будут валидированы перед изменением
-        upsert: true // если пользователь не найден, он будет создан
-    }
-    )
-  .then(user => res.send({ data: user }))
-  .catch(user => res.send({ "Данные не прошли валидацию. Либо произошло что-то совсем немыслимое" })); ;
-
-
-
-PATCH /users/me/avatar — обновляет аватар
-
-
-// const User = require('../models/user');
-
-// router.post('/', (req, res) => {
-//   const { name, about } = req.body; // получим из объекта запроса имя и описание пользователя
-
-//   User.create({ name, about }); // создадим документ на основе пришедших данных
-// });
-
+const updateAvatar = (req, res) => {
+  const { avatar } = req.body;
+  return User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+    .then(user => res.send({ data: user }))
+    .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
+};
 
 module.exports = {
   getUsers,
   getUser,
-  createUser
+  createUser,
+  updateUser,
+  updateAvatar
 };

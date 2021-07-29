@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Vladimir",
+    "about": "Top",
+    "avatar": "https://ic.wampi.ru/2021/07/29/frontend-backend.jpg"
+  },
+  {
+    "name": "Vla",
+    "about": "Top123",
+    "avatar": "https://ic.wampi.ru/2021/07/29/frontend-backend.jpg"
+  },
+  {
+    "name": "Picture",
+    "link": "https://ic.wampi.ru/2021/07/29/frontend-backend.jpg"
+  },
+  {
+    "name": "Vladimir",
+    "about": "Top"
+  },
+  {
+    "link": "https://ic.wampi.ru/2021/07/29/frontend-backend.jpg"
+  }
+]
