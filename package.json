@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "nodemon app.js",
     "start": "node app.js",
-    "lint": "npx eslint"
+    "lint": "npx eslint ."
   },
-  "author": "123",
+  "author": "Vladimir",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^7.31.0",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-react": "^7.24.0",
     "nodemon": "^2.0.12"
   },
   "dependencies": {
