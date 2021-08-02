@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const path = require('path');
 const rootRouter = require('./routes/index');
 
 const mongoose = require('mongoose');
@@ -10,8 +9,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useFindAndModify: false
 });
 
-
-app.use(express.static(path.resolve(__dirname, 'public')));
 app.use(express.json());
 app.use((req, res, next) => {
   req.user = {
