@@ -4,16 +4,8 @@ const cardsRouter = require('./cards');
 
 router.use('/users', userRouter);
 router.use('/cards', cardsRouter);
-router.get('*', function(req, res, next) {
-
-  err = { “message”: 'Запрашиваемый ресурс не найден'  }
-
-  if(err) next(err);
-
-  if(!err){
-    res.render('index', { title: 'Express' });
-  }
-
+router.use('*', (req, res) => {
+  res.status(404).send({ message: 'Запрашиваемый ресурс не найден.' });
 });
 
 module.exports = router;

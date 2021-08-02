@@ -24,10 +24,13 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   return Card.findByIdAndRemove({_id: req.params.cardId})
+    .orFail(new Error('NotValidId'))
     .then(card => res.send({ message: `Карточка удалена` }))
     .catch(err => {
-      if (err.statusCode === ERR_NOT_FOUND) {
+      if (err.message === 'NotValidId') {
         res.status(ERR_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена' });
+      } else if  (err.name === 'CastError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
       }
@@ -40,9 +43,12 @@ const putLike = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true }
   )
+    .orFail(new Error('NotValidId'))
     .then(card => res.send({ data: card }))
     .catch(err => {
-      if (err.statusCode === ERR_BAD_REQUEST) {
+      if (err.message === 'NotValidId') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена' });
+      } else if (err.name === 'CastError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
@@ -56,9 +62,12 @@ const deleteLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
+    .orFail(new Error('NotValidId'))
     .then(card => res.send({ data: card }))
     .catch(err => {
-      if (err.statusCode === ERR_BAD_REQUEST) {
+      if (err.message === 'NotValidId') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена' });
+      } else if (err.name === 'CastError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные для снятии лайка' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
