@@ -13,7 +13,9 @@ const getUser = (req, res) => {
   return User.findById({_id: req.params.userId})
     .then(user => res.status(200).send({data: user}))
     .catch(err => {
-      if (err.statusCode === ERR_NOT_FOUND) {
+      if (err.name === 'CastError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+      } else if (err.statusCode === ERR_NOT_FOUND) {
         res.status(ERR_NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
@@ -23,7 +25,7 @@ const getUser = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body; // получим из объекта запроса имя и описание пользователя
-  return User.create({ name, about, avatar })
+  return User.create({ name, about, avatar }, { runValidators: true })
     .then(user => res.status(200).send({ data: user }))
     .catch(err => {
       if (err.name === 'ValidationError') {
@@ -37,7 +39,7 @@ const createUser = (req, res) => {
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
-  return User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
+  return User.findByIdAndUpdate(req.user._id, { name, about }, { new: true }, { runValidators: true })
     .then(user => res.status(200).send({ data: user }))
     .catch(err => {
       if (err.statusCode === ERR_NOT_FOUND) {
@@ -52,7 +54,7 @@ const updateUser = (req, res) => {
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  return User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+  return User.findByIdAndUpdate(req.user._id, { avatar }, { new: true }, { runValidators: true })
     .then(user => res.status(200).send({ data: user }))
     .catch(err => {
       if (err.statusCode === ERR_NOT_FOUND) {

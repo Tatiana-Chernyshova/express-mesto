@@ -11,7 +11,7 @@ const getCards = (req, res) => {
 
 const createCard = (req, res) => {
   const { name, link } = req.body; // получим из объекта запроса имя и описание пользователя
-  return Card.create({ name, link, owner: req.user._id })
+  return Card.create({ name, link, owner: req.user._id }, { runValidators: true })
     .then(card => res.send({ data: card }))
     .catch(err => {
       if (err.name === 'ValidationError') {
