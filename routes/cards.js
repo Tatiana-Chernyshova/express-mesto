@@ -1,16 +1,18 @@
 const router = require('express').Router();
-const { getCards,
+const {
+  getCards,
   createCard,
   deleteCard,
   putLike,
-  deleteLike
-  } = require('../controllers/cards');
+  deleteLike,
+} = require('../controllers/cards');
+const auth = require('../middlewares/auth');
 
-router.get('/', getCards);  //возвращает все карточки
-router.post('/', createCard); //создаёт карточку
-router.delete('/:cardId', deleteCard); //удаляет карточку по идентификатору
-router.put('/:cardId/likes', putLike); //поставить лайк карточке
-router.delete('/:cardId/likes', deleteLike); //убрать лайк с карточки
-
+router.use(auth);
+router.get('/', getCards); // возвращает все карточки
+router.post('/', createCard); // создаёт карточку
+router.delete('/:cardId', deleteCard); // удаляет карточку по идентификатору
+router.put('/:cardId/likes', putLike); // поставить лайк карточке
+router.delete('/:cardId/likes', deleteLike); // убрать лайк с карточки
 
 module.exports = router;
