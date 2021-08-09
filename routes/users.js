@@ -14,8 +14,7 @@ router.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string(),
   }),
-}),
-createUser);
+}), createUser);
 
 router.use(auth);
 router.get('/', getUsers);
