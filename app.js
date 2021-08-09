@@ -4,6 +4,7 @@ const app = express();
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const rootRouter = require('./routes/index');
+const errorHandler = require('./middlewares/error-handler');
 // const dotenv =
 require('dotenv').config();
 // console.log(process.env.NODE_ENV);
@@ -24,5 +25,6 @@ app.use(express.json());
 //   next();
 // });
 app.use('/', rootRouter);
+app.use(errorHandler);
 
 app.listen(3000, () => console.log(process.env.JWT_SECRET));

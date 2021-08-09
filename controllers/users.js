@@ -1,6 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
+const Error400 = require('../errors/error400');
+const Error401 = require('../errors/error401');
+const Error404 = require('../errors/error404');
+const Error409 = require('../errors/error409');
 require('dotenv').config();
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -9,31 +13,29 @@ const ERR_BAD_REQUEST = 400;
 const ERR_NOT_FOUND = 404;
 const ERR_DEFAULT = 500;
 
-const getUsers = (req, res) => User.find({})
+const getUsers = (req, res, next) => User.find({})
   .then((users) => res.status(200).send({ data: users }))
   .catch(() => res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' }));
 
-const getUser = (req, res) => User.findById({ _id: req.params.userId })
-  .orFail(new Error('NotValidId'))
-  .then((user) => res.status(200).send({ data: user }))
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-    } else if (err.message === 'NotValidId') {
-      res.status(ERR_NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден' });
-    } else {
-      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
-    }
-  });
+const getUser = (req, res, next) => {
+  User.findById({ _id: req.params.userId })
+    .orFail(() => {
+      throw new Error404('Запрашиваемый пользователь не найден');
+    })
+    .then((user) => res.status(200).send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new Error400('Переданы некорректные данные'));
+      }
+    });
+};
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   // получим из объекта запроса имя и описание пользователя
   const {
     name, about, avatar, email, password,
   } = req.body;
-  // return User.create({
-  //   name, about, avatar, email, password,
-  // })
+
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
       name,
@@ -42,18 +44,29 @@ const createUser = (req, res) => {
       email,
       password: hash, // записываем хеш в базу
     }))
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(400).send(err));
+    // .then((user) => res.send({ data: user }))
+    // .catch((err) => res.status(400).send(err));
+  // };
+    .then((user) => res.status(200).send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new Error400('Переданы некорректные данные при создании пользователя'));
+      } else if (err.name === 'MongoError' && err.code === 11000) {
+        next(new Error409('Данный email уже зарегистрирован'));
+      }
+    });
 };
-// .then((user) => res.status(200).send({ data: user }))
+// .catch(next);
 // .catch((err) => {
 //   if (err.name === 'ValidationError') {
 //     res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
+//   } else if (err.name === 'MongoError' && err.code === 11000) {
+//     // Обработка ошибки
+//     throw new Error400('Нет пользователя с таким id');
 //   } else {
 //     res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
 //   }
 // });
-// };
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
