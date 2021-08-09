@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const Error401 = require('../errors/error401');
+const Error403 = require('../errors/error403');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
 
   if (!token) {
-    next(new Error401('Необходима авторизация'));
+    next(new Error403('Необходима авторизация'));
   }
 
   let payload;
@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key');
   } catch (err) {
-    next(new Error401('Необходима авторизация'));
+    next(new Error403('Необходима авторизация'));
   }
 
   req.user = payload; // записываем пейлоуд в объект запроса
