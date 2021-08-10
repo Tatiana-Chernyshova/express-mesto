@@ -1,20 +1,10 @@
 const { celebrate, Joi } = require('celebrate');
 const router = require('express').Router();
 const {
-  getUsers, getUser, createUser, updateUser, updateAvatar, login, aboutUser,
+  getUsers, getUser, updateUser, updateAvatar, aboutUser,
 } = require('../controllers/users');
 const auth = require('../middlewares/auth');
-
-router.post('/signin', login);
-router.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string(),
-  }),
-}), createUser);
+const validateUrl = require('../validator/validateUrl');
 
 router.use(auth);
 router.get('/', getUsers);
@@ -32,7 +22,7 @@ router.patch('/me', celebrate({
 }), updateUser); // обновляет профиль
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required(),
+    avatar: Joi.string().required().custom(validateUrl),
   }),
 }), updateAvatar); // обновляет аватар
 

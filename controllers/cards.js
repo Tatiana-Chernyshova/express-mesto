@@ -1,5 +1,6 @@
 const Card = require('../model/card');
 const Error400 = require('../errors/error400');
+const Error403 = require('../errors/error403');
 const Error404 = require('../errors/error404');
 
 const getCards = (req, res, next) => Card.find({})
@@ -26,7 +27,7 @@ const deleteCard = (req, res, next) => {
     })
     .then((card) => {
       if (req.user._id !== card.owner.toString()) {
-        throw new Error400('Нельзя удалить чужую карточку');
+        throw new Error403('Нельзя удалить чужую карточку');
       }
       card.remove();
       res.status(200)
