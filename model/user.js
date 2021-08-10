@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
+const isURL = require('validator/lib/isURL');
 
 const userSchema = new mongoose.Schema({
   name: { // у пользователя есть имя — опишем требования к имени в схеме:
@@ -18,10 +19,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator(avatar) {
-        return /https?:\/\/[\w\W]{1,100}\.[a-z0-9]{2,6}[\w\W]{0,1000}/i.test(avatar);
-      },
-      message: 'Ошибка валидации',
+      // validator(avatar) {
+      //   return /https?:\/\/[\w\W]{1,100}\.[a-z0-9]{2,6}[\w\W]{0,1000}/i.test(avatar);
+      // },
+      validator: (v) => isURL(v),
+      message: 'Ошибка проверки URL',
     },
   },
   email: {

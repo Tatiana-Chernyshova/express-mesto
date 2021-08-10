@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 const Error400 = require('../errors/error400');
+const Error401 = require('../errors/error401');
 const Error404 = require('../errors/error404');
 const Error409 = require('../errors/error409');
 require('dotenv').config();
@@ -92,7 +93,7 @@ const login = (req, res, next) => {
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new Error400('Неправильные почта или пароль');
+            throw new Error401('Неправильные почта или пароль');
           }
           const token = jwt.sign(
             { _id: user._id },
