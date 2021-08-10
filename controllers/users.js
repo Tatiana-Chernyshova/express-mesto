@@ -42,7 +42,7 @@ const createUser = (req, res, next) => {
     }))
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         next(new Error400('Переданы некорректные данные при создании пользователя'));
       } else if (err.name === 'MongoError' && err.code === 11000) {
         next(new Error409('Данный email уже зарегистрирован'));
@@ -85,7 +85,6 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email }).select('+password')
-  // .select("+password")
     .then((user) => {
       if (!user) {
         throw new Error400('Неправильные почта или пароль');
@@ -93,7 +92,6 @@ const login = (req, res, next) => {
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            // throw new NotFoundUserError("Неправильные почта или пароль");
             throw new Error400('Неправильные почта или пароль');
           }
           const token = jwt.sign(
@@ -102,7 +100,6 @@ const login = (req, res, next) => {
               : 'some-secret-key',
             { expiresIn: '7d' },
           );
-          // res.send({ token });
           res.cookie('jwt', token, {
             maxAge: 3600000 * 24 * 7,
             httpOnly: true,

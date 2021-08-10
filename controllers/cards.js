@@ -2,14 +2,9 @@ const Card = require('../model/card');
 const Error400 = require('../errors/error400');
 const Error404 = require('../errors/error404');
 
-
-// const ERR_BAD_REQUEST = 400;
-// const ERR_NOT_FOUND = 404;
-// const ERR_DEFAULT = 500;
-
-const getCards = (req, res) => Card.find({})
+const getCards = (req, res, next) => Card.find({})
   .then((cards) => res.status(200).send({ data: cards }))
-  .catch(() => res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' }));
+  .catch((err) => next(err));
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body; // получим из объекта запроса имя и описание пользователя
