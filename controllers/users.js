@@ -41,7 +41,19 @@ const createUser = (req, res, next) => {
       email,
       password: hash, // записываем хеш в базу
     }))
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.status(200).send({
+      data: user
+        .then((user) => res.status(200).send({
+          data: {
+            _id: user._id,
+            name: user.name,
+            about: user.about,
+            avatar: user.avatar,
+            email: user.email,
+            __v: user.__v,
+          },
+        })),
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new Error400('Переданы некорректные данные при создании пользователя'));
@@ -88,7 +100,7 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new Error400('Неправильные почта или пароль');
+        throw new Error401('Неправильные почта или пароль');
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
